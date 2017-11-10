@@ -18,7 +18,11 @@ from mesa.time  import BaseScheduler
 
 class Cell(Agent):
     """
-    A cell can either
+    Base Cell class. Each cell has an energy level `e` between 0 and 100. Once
+    e > 10, the cell has a chance of activating (set with `activation_odds`).
+
+    Each cell loses one energy point per turn. Once the energy level falls
+    under 10, the cell deactivates.
     """
 
     def __init__(self, unique_id, model, activated = False, activation_odds = 0.5):
@@ -70,6 +74,10 @@ class Cell(Agent):
             self.energy = 0
 
 class Producer(Cell):
+    """
+    Cell that sends out activation energy for up to 15 turns
+    """
+
     # def __init__(self, unique_id, model, activated = False):
     #     super().__init__(unique_id, model, activated)
     #     if not activated:
@@ -86,6 +94,10 @@ class Producer(Cell):
                 t.add_energy(r.randint(1, 5))
 
 class Consumer(Cell):
+    """
+    Cell that sends out deactivation energy after 5 turns
+    """
+
     # def __init__(self, unique_id, model, activated = False):
     #     super().__init__(unique_id, model, activated)
     #     self.energy = 5
@@ -100,6 +112,12 @@ class Consumer(Cell):
                 t.subtract_energy(r.randint(1, 5))
 
 class PetriDish(Model):
+    """
+    Main model instance. It assignes one cell in each grid location, selecting
+    its type randomly at the time of assignment; it assigns a single activated
+    Producer cell in the middle of the grid.
+    """
+
     def __init__(self, width = 50, height = 50, proportion_producers = 0.3, proportion_consumers = 0.3):
         self.running = True
         self.schedule = BaseScheduler(self)
